@@ -594,6 +594,7 @@ public:
     const bool IsX32 = getTriple().getEnvironment() == llvm::Triple::GNUX32;
     bool IsWinCOFF =
         getTriple().isOSWindows() && getTriple().isOSBinFormatCOFF();
+    bool IsRepo = getTriple().isOSBinFormatRepo();
     LongWidth = LongAlign = PointerWidth = PointerAlign = IsX32 ? 32 : 64;
     LongDoubleWidth = 128;
     LongDoubleAlign = 128;
@@ -608,10 +609,11 @@ public:
     RegParmMax = 6;
 
     // Pointers are 32-bit in x32.
-    resetDataLayout(IsX32
-                        ? "e-m:e-p:32:32-i64:64-f80:128-n8:16:32:64-S128"
-                        : IsWinCOFF ? "e-m:w-i64:64-f80:128-n8:16:32:64-S128"
-                                    : "e-m:e-i64:64-f80:128-n8:16:32:64-S128");
+    resetDataLayout(
+        IsX32 ? "e-m:e-p:32:32-i64:64-f80:128-n8:16:32:64-S128"
+              : IsWinCOFF ? "e-m:w-i64:64-f80:128-n8:16:32:64-S128"
+                          : IsRepo ? "e-m:r-i64:64-f80:128-n8:16:32:64-S128"
+                                   : "e-m:e-i64:64-f80:128-n8:16:32:64-S128");
 
     // Use fpret only for long double.
     RealTypeUsesObjCFPRet = (1 << TargetInfo::LongDouble);
